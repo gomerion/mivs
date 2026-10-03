@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: mivs
+server:
+  port: 8080

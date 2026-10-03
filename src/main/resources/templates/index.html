@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Задание 27 — график распределения</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 30px; }
+        canvas { max-width: 900px; margin-bottom: 30px; }
+        .panel {
+            max-width: 900px;
+            background: #f4f6f8;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+        .panel h3 { margin-top: 0; }
+        .panel p { margin: 6px 0; font-size: 15px; }
+        .ok { color: #1a7f37; font-weight: bold; }
+        .fail { color: #cf222e; font-weight: bold; }
+        button {
+            padding: 10px 18px;
+            font-size: 15px;
+            border: none;
+            border-radius: 6px;
+            background: #1f6feb;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover { background: #1558c0; }
+    </style>
+</head>
+<body>
+
+<h2>Задание 27 — моделирование случайной величины</h2>
+
+<div class="panel">
+    <h3>Результаты статистического контроля</h3>
+    <p>Количество реализаций N = <span th:text="${n}">1000</span></p>
+    <p>Количество интервалов n = <span th:text="${nBins}">15</span></p>
+    <p>Значение χ² = <b th:text="${chi2}">—</b></p>
+    <p>Порог (α = 0.05, df = 14) = <b th:text="${threshold}">23.7</b></p>
+    <p th:if="${adequate}" class="ok">Гипотеза не отвергается — модель адекватна.</p>
+    <p th:unless="${adequate}" class="fail">Гипотеза отвергается — модель неадекватна.</p>
+</div>
+
+<button onclick="window.location.reload()">Перегенерировать</button>
+
+<h2>Плотность распределения f(x) и теоретическая кривая</h2>
+<canvas id="densityChart" width="900" height="400"></canvas>
+
+<h2>Гистограмма частот</h2>
+<canvas id="freqChart" width="900" height="400"></canvas>
+
+<script th:inline="javascript">
+    const labels     = /*[[${labels}]]*/ [];
+    const counts     = /*[[${counts}]]*/ [];
+    const empirical  = /*[[${empiricalDensity}]]*/ [];
+    const theoretical = /*[[${theoreticalDensity}]]*/ [];
+
+    // --- График плотности: столбики + теоретическая линия ---
+    new Chart(document.getElementById('densityChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Эмпирическая плотность f̂(x)',
+                    data: empirical,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    order: 2
+                },
+                {
+                    type: 'line',
+                    label: 'Теоретическая f(x)',
+                    data: theoretical,
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    tension: 0.3,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'f(x)' } } },
+            plugins: { legend: { display: true } }
+        }
+    });
+
+    // --- График частот (как было) ---
+    new Chart(document.getElementById('freqChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Частота',
+                data: counts,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+</body>
+</html>
