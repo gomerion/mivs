@@ -2,260 +2,100 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Задание 27 — график распределения</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Лабораторная работа 2</title>
     <style>
-        * { box-sizing: border-box; }
-        html, body {
-            margin: 0;
-            padding: 8px 12px;
-            font-family: sans-serif;
-            font-size: 13px;
-            height: 100%;
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        h2 {
-            font-size: 15px;
-            margin: 8px 0 6px;
+        .form-container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
-
-        /* Верхняя строка: панель + кнопка */
-        .topbar {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
+        .form-group {
+            margin-bottom: 15px;
         }
-        .panel {
-            background: #f4f6f8;
-            border: 1px solid #d0d7de;
-            border-radius: 6px;
-            padding: 6px 12px;
-            display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
-            align-items: center;
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
-        .panel p { margin: 0; font-size: 13px; }
-        .panel h3 { margin: 0 8px 0 0; font-size: 13px; }
-        .ok { color: #1a7f37; font-weight: bold; }
-        .fail { color: #cf222e; font-weight: bold; }
+        input[type="number"] {
+            width: 200px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
         button {
-            padding: 6px 14px;
-            font-size: 13px;
-            border: none;
-            border-radius: 5px;
-            background: #1f6feb;
+            background-color: #007bff;
             color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
         }
-        button:hover { background: #1558c0; }
-
-        /* Сетка: слева графики, справа таблица */
-        .layout {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 12px;
-            height: calc(100vh - 90px);
+        button:hover {
+            background-color: #0056b3;
         }
-
-        .charts {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            min-height: 0;
-        }
-        .chart-block {
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        .chart-block h2 {
-            margin: 0 0 2px;
-            font-size: 13px;
-            color: #333;
-        }
-        .chart-wrap {
-            flex: 1;
-            min-height: 0;
-            position: relative;
-        }
-        .chart-wrap canvas {
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        /* Таблица пар значений */
-        .pairs-wrap {
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-            border: 1px solid #d0d7de;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .pairs-wrap h2 {
-            margin: 0;
-            padding: 5px 8px;
-            font-size: 13px;
-            background: #eaeef2;
-            border-bottom: 1px solid #d0d7de;
-        }
-        .pairs-scroll {
-            overflow-y: auto;
-            flex: 1;
-        }
-        table.pairs {
+        table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            margin-top: 20px;
         }
-        table.pairs th, table.pairs td {
-            border-bottom: 1px solid #e2e8f0;
-            padding: 3px 6px;
-            text-align: right;
-        }
-        table.pairs th {
-            background: #f8fafc;
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
             text-align: center;
-            position: sticky;
-            top: 0;
-            font-weight: 600;
         }
-        table.pairs td:first-child,
-        table.pairs th:first-child {
-            text-align: center;
-            color: #666;
+        th {
+            background-color: #f2f2f2;
         }
-        table.pairs tr:nth-child(even) { background: #fafbfc; }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
     </style>
 </head>
 <body>
-
-<div class="topbar">
-    <div class="panel">
-        <h3>Контроль:</h3>
-        <p>N = <b th:text="${n}">1000</b></p>
-        <p>n = <b th:text="${nBins}">15</b></p>
-        <p>χ² = <b th:text="${chi2}">—</b></p>
-        <p>порог = <b th:text="${threshold}">23.7</b></p>
-        <p th:if="${adequate}" class="ok">модель адекватна</p>
-        <p th:unless="${adequate}" class="fail">модель неадекватна</p>
-    </div>
-    <button onclick="window.location.reload()">Перегенерировать</button>
-</div>
-
-<div class="layout">
-
-    <div class="charts">
-        <div class="chart-block">
-            <h2>Плотность f(x): эмпирическая и теоретическая</h2>
-            <div class="chart-wrap">
-                <canvas id="densityChart"></canvas>
+    <h1>Лабораторная работа 2</h1>
+    
+    <div class="form-container">
+        <h2>Ввод параметров</h2>
+        <form th:action="@{/result}" method="post">
+            <div class="form-group">
+                <label for="lamda1">Lambda 1:</label>
+                <input type="number" id="lamda1" name="lamda1" step="0.1" value="2.0" required>
             </div>
-        </div>
-        <div class="chart-block">
-            <h2>Гистограмма частот</h2>
-            <div class="chart-wrap">
-                <canvas id="freqChart"></canvas>
+            <div class="form-group">
+                <label for="lamda2">Lambda 2:</label>
+                <input type="number" id="lamda2" name="lamda2" step="0.1" value="3.0" required>
             </div>
-        </div>
+            <button type="submit">Выполнить расчет</button>
+        </form>
     </div>
 
-    <div class="pairs-wrap">
-        <h2>Интервал → частота</h2>
-        <div class="pairs-scroll">
-            <table class="pairs">
-                <thead>
+    <div th:if="${result != null}">
+        <h2>Результаты</h2>
+        <table>
+            <thead>
                 <tr>
-                    <th>№</th>
-                    <th>Интервал</th>
-                    <th>Частота</th>
+                    <th>Номер события i</th>
+                    <th>Интервал τ[i]</th>
+                    <th>Момент события t[i]</th>
                 </tr>
-                </thead>
-                <tbody>
-                <tr th:each="label, iter : ${labels}">
-                    <td th:text="${iter.index + 1}">1</td>
-                    <td th:text="${label}">0.00–0.10</td>
-                    <td th:text="${counts[iter.index]}">0</td>
+            </thead>
+            <tbody>
+                <tr th:each="row : ${result.tau}">
+                    <td th:text="${rowStat.index + 1}">Номер события</td>
+                    <td th:text="${#numbers.formatDecimal(row, 1, 2)}">Интервал</td>
+                    <td th:text="${#numbers.formatDecimal(result.t[rowStat.index], 1, 2)}">Момент</td>
                 </tr>
-                </tbody>
-            </table>
-        </div>
+            </tbody>
+        </table>
     </div>
 
-</div>
-
-<script th:inline="javascript">
-    const labels      = /*[[${labels}]]*/ [];
-    const counts      = /*[[${counts}]]*/ [];
-    const empirical   = /*[[${empiricalDensity}]]*/ [];
-    const theoretical = /*[[${theoreticalDensity}]]*/ [];
-
-    Chart.defaults.font.size = 11;
-    Chart.defaults.animation = false;
-
-    // --- График плотности ---
-    new Chart(document.getElementById('densityChart'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    type: 'bar',
-                    label: 'Эмпирическая f̂(x)',
-                    data: empirical,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    order: 2
-                },
-                {
-                    type: 'line',
-                    label: 'Теоретическая f(x)',
-                    data: theoretical,
-                    borderColor: 'rgba(220, 53, 69, 1)',
-                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                    borderWidth: 2,
-                    pointRadius: 2,
-                    tension: 0.3,
-                    order: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'f(x)' } }
-            },
-            plugins: {
-                legend: { display: true, labels: { boxWidth: 12, padding: 8 } }
-            }
-        }
-    });
-
-    // --- График частот ---
-    new Chart(document.getElementById('freqChart'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Частота',
-                data: counts,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true } },
-            plugins: { legend: { display: false } }
-        }
-    });
-</script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-package ssau.lab1.mivs;
+package ssau.lab2.mivs;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
